@@ -1,6 +1,11 @@
 import { Field, ObjectType } from 'type-graphql';
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Appointment } from './Appointment';
 
+/**
+ * TODO: add 3 new fields, the avatarUrl, appointments associated with the user
+ * and a list of patient files that the user as created
+ */
 @ObjectType()
 @Entity()
 export class User {
@@ -20,6 +25,13 @@ export class User {
     @Field()
     @Column('text')
     password: String;
+
+    @Field()
+    @Column()
+    avatarUrl: string;
+
+    @Field()
+    appointments: Appointment[];
 
     @Field()
     @CreateDateColumn()
