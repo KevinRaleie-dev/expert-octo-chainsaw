@@ -1,5 +1,5 @@
 import { Field, ObjectType } from 'type-graphql';
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Appointment } from './Appointment';
 
 /**
@@ -16,22 +16,19 @@ export class User {
 
     @Field()
     @Column('text')
-    email: String;
+    email: string;
 
     @Field()
     @Column('text')
-    username: String;
+    username: string;
 
     @Field()
     @Column('text')
-    password: String;
+    password: string;
 
-    @Field()
-    @Column()
-    avatarUrl: string;
-
-    @Field()
-    appointments: Appointment[];
+    @Field(() => [Appointment])
+    @OneToMany(() => Appointment, (appointment) => appointment.patient)
+    appointments: Array<Appointment>;
 
     @Field()
     @CreateDateColumn()

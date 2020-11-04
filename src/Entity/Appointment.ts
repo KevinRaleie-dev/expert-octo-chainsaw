@@ -1,7 +1,7 @@
 import { Field, ObjectType } from "type-graphql";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Clinic } from "./Clinic";
-import { Service } from "./Service";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+// import { Clinic } from "./Clinic";
+// import { Service } from "./Service"
 import { User } from "./User";
 
 /**
@@ -18,11 +18,17 @@ export class Appointment {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Field()
+    @ManyToOne(() => User, (user) => user.appointments)
     patient: User;
 
-    bookedService: Service;
+    @Field()
+    @Column()
+    bookedService: string;
 
-    clinic: Clinic;
+    @Field()
+    @Column()
+    clinic: string;
 
     @Field()
     @Column()
