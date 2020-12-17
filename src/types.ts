@@ -1,5 +1,5 @@
-import { EntityManager, } from "typeorm";
-
-export type AppContext = {
-    ctx: EntityManager
+import { Response, Request } from 'express';
+export interface AppContext {
+    res: Response;
+    req: Request & {session: any };
 }
