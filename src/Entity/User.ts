@@ -1,29 +1,32 @@
-import { Field, ObjectType } from 'type-graphql';
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { IsEmail } from 'class-validator';
+import { Field, ID, ObjectType } from 'type-graphql';
+import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Appointment } from './Appointment';
 
-/**
- * TODO: add 3 new fields, the avatarUrl, appointments associated with the user
- * and a list of patient files that the user as created
- */
+//  TODO: update the user entity to accept first name and last name upon register
 @ObjectType()
 @Entity()
-export class User {
+export class User extends BaseEntity {
 
-    @Field()
+    @Field(() => ID)
     @PrimaryGeneratedColumn()
     id: number;
 
     @Field()
-    @Column('text')
+    @Column()
+    firstName: string;
+
+    @Field()
+    @Column()
+    lastName: string;
+
+    @Field()
+    @Column()
+    @IsEmail()
     email: string;
 
     @Field()
-    @Column('text')
-    username: string;
-
-    @Field()
-    @Column('text')
+    @Column()
     password: string;
 
     @Field(() => [Appointment])

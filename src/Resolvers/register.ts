@@ -1,48 +1,52 @@
 import { UserResponse } from "../errors/UserResponse";
 import { Arg, Mutation, Resolver } from "type-graphql";
-import { getManager } from "typeorm";
 import { User } from "../Entity/User";
 import bcrypt from 'bcryptjs'
 import { RegisterInput } from "../utils/userInput";
+import { validate } from "class-validator";
 
 @Resolver()
 export class RegisterResolver {
+
+    // TODO: need to clean this up for new input
 
     @Mutation(() => UserResponse)
     async registerUser(
        @Arg('input') input: RegisterInput
     ): Promise<UserResponse> {
         
-        const em = getManager();
+        const ifExists = await User.findOne({
+            where: {
+                email: input.email
+            }
+        });
 
-        // TODO: remember to add validation with yup or joi
-
-        // check if user exists in the database
-
-        const checkIfUserExists = await em.findOne(User, { email: input.email });
-
-        // if there is a user that exists throw an error
-
-        if(checkIfUserExists) {
+        if(ifExists) {
             return {
-                errors: [
-                    {
-                        field: 'email',
-                        message: 'user already exists'
-                    }
-                ]
+                errors: [{
+                    field: 'Email',
+                    message: 'User already exists. Try again.'
+                }]
             }
         }
-
-        // if there isnt a user continue to register
-        // and hash the user's password
 
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(input.password, salt);
 
-        const user = em.create(User, { email: input.email, username: input.username, password: hashedPassword });
+        const user = User.create({
+            email: input.email,
+            firstName: input.firstName,
+            lastName: input.lastName,
+            password: hashedPassword
+        });
 
-        await em.save(user);
+        const errors = await validate(user);
+
+        if(errors.length > 0) {
+            throw new Error('validation failed.');
+        }
+
+        await User.save(user);
 
         return {
             user
