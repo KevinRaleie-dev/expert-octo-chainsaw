@@ -1,55 +1,49 @@
 import { UserResponse } from "../errors/UserResponse";
 import { User } from '../Entity/User';
-import { Arg, Mutation, Resolver } from "type-graphql";
-import { getManager } from "typeorm";
+import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
 import { LoginInput } from '../utils/userInput';
 import bcrypt from 'bcryptjs';
+import { AppContext } from "../types";
 
 @Resolver()
 export class LoginResolver {
 
+    // TODO: return an access token 
     @Mutation(() => UserResponse)
     async loginUser(
-        @Arg('input') input: LoginInput
+        @Arg('input') input: LoginInput,
+        @Ctx() { req }: AppContext
     ): Promise<UserResponse> {
-        
-        const em = getManager();
-        
-        // check if the user input, both email and password
-        // is the same as in the database...
-        // if not, then throw errors
 
-        const user = await em.findOne(User, { email: input.email });
+        const user = await User.findOne({ where: {email: input.email }});
 
         if(!user) {
             return {
                 errors: [
                     {
-                        field: 'email',
+                        field: 'Email',
                         message: 'Invalid email or password'
                     }
                 ]
             }
         }
-        else if (user) {
 
-            const validatePassword = bcrypt.compareSync(input.password, user.password);
+        const validatePassword = bcrypt.compareSync(input.password, user.password);
 
-            if(!validatePassword) {
-                return {
-                    errors: [
-                        {
-                            field: 'password',
-                            message: 'Invalid email or password'
-                        }
-                    ]
-                }
+        if(!validatePassword) {
+            return {
+                errors: [
+                    {
+                        field: 'password',
+                        message: 'Invalid email or password'
+                    }
+                ]
             }
         }
 
-        // here we will issue a token if the user details are correct
-        // for now return the user
-
+        // TODO: create a session and store it in redis
+        req.session.userId = user.id;
+        
         return {
             user
         }
