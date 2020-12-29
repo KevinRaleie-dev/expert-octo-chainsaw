@@ -1,23 +1,20 @@
-import { Appointment } from "../Entity/Appointment";
-import { createConnection } from "typeorm";
-import { User } from "../Entity/User";
+import { Appointment } from '../Entity/Appointment';
+import { createConnection } from 'typeorm';
+import { User } from '../Entity/User';
 
 export const db = async () => {
   try {
     await createConnection({
-      type: "postgres",
-      host: "localhost",
+      type: 'postgres',
+      host: 'localhost',
       port: 5432,
-      database: "postgres",
+      database: 'postgres',
       username: 'kevinraleie',
-      entities: [
-        User,
-        Appointment
-      ],
+      entities: [User, Appointment],
       synchronize: true,
-      logging: true,
-    }).then(() => console.log("database connected"));
+      logging: false,
+    });
   } catch (error) {
-    console.log("db error: ", error);
+    console.log('Database error: ', error);
   }
 };
