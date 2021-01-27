@@ -5,13 +5,12 @@ import Redis from 'ioredis';
 import session from 'express-session';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
-import { db } from './db/connection';
-import { UserResolver } from './Resolvers/user';
-import { RegisterResolver } from './Resolvers/register';
-import { LoginResolver } from './Resolvers/login';
+import databaseConnection from './db/connection';
+import { UserResolver } from './resolvers/user-resolver';
+import { AuthResolver } from './resolvers/auth-resolver';
 import connectRedis from 'connect-redis';
-import { AppContext } from './types';
-import { MeResolver } from './Resolvers/me';
+import { AppContext } from './utils/types';
+import { MeResolver } from './resolvers/me-resolver';
 
 const app = express();
 const port = 4000;
@@ -19,7 +18,7 @@ const redisStore = connectRedis(session);
 const redis = new Redis();
 
 const main = async () => {
-  db();
+  databaseConnection();
   app.use(
     cors({
       origin: 'http://localhost:3000',
@@ -45,7 +44,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [MeResolver, UserResolver, RegisterResolver, LoginResolver],
+      resolvers: [MeResolver, UserResolver, AuthResolver],
       validate: false,
     }),
     context: ({ req, res }): AppContext => ({ req, res }),

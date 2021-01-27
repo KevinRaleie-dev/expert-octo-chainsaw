@@ -1,8 +1,8 @@
-import { Appointment } from '../Entity/Appointment';
+import { Appointment } from '../entity/Appointment';
 import { createConnection } from 'typeorm';
-import { User } from '../Entity/User';
+import { User } from '../entity/User';
 
-export const db = async () => {
+export default async function databaseConnection(): Promise<void> {
   try {
     await createConnection({
       type: 'postgres',
@@ -17,4 +17,4 @@ export const db = async () => {
   } catch (error) {
     console.log('Database error: ', error);
   }
-};
+}
