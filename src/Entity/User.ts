@@ -1,4 +1,3 @@
-import { IsEmail, MinLength } from 'class-validator';
 import { Field, ID, ObjectType } from 'type-graphql';
 import {
   BaseEntity,
@@ -28,11 +27,9 @@ export class User extends BaseEntity {
 
   @Field()
   @Column()
-  @IsEmail()
   email: string;
 
   @Column()
-  @MinLength(6)
   password: string;
 
   @Field(() => [Appointment])

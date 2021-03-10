@@ -3,20 +3,45 @@ import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
 import { User } from '../entity/User';
 import bcrypt from 'bcryptjs';
 import { AuthInput } from '../utils/authInput';
-import { validate } from 'class-validator';
 import { AppContext } from '../utils/types';
+import { authSchema } from '../utils/validation/auth-validation-schema';
 
 @Resolver()
 export class AuthResolver {
   @Mutation(() => AuthResponse)
   async registerUser(@Arg('input') input: AuthInput): Promise<AuthResponse> {
-    const ifExists = await User.findOne({
+    try {
+      await authSchema.validate({
+        email: input.email,
+        firstName: input.firstName,
+        lastName: input.lastName,
+        password: input.password,
+      });
+    } catch (error) {
+      if (
+        error.message.includes('email') ||
+        error.message.includes('password') ||
+        error.message.includes('firstName') ||
+        error.message.includes('lastName')
+      ) {
+        return {
+          errors: [
+            {
+              field: error.path,
+              message: error.message,
+            },
+          ],
+        };
+      }
+    }
+
+    const ifUserAlreadyExists = await User.findOne({
       where: {
         email: input.email,
       },
     });
 
-    if (ifExists) {
+    if (ifUserAlreadyExists) {
       return {
         errors: [
           {
@@ -36,12 +61,6 @@ export class AuthResolver {
       lastName: input.lastName,
       password: hashedPassword,
     });
-
-    const errors = await validate(user);
-
-    if (errors.length > 0) {
-      throw new Error('validation failed.');
-    }
 
     await User.save(user);
 
